@@ -176,7 +176,7 @@ auto ec = glz::write_file_json(obj, "./obj.json", std::string{});
 
 ## Compiler/System Support
 
-- Requires C++23
+- Requires C++20
 - Tested for both 64bit and 32bit
 - Only supports little-endian systems
 

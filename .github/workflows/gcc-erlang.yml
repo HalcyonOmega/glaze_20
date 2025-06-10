@@ -25,7 +25,7 @@ jobs:
       matrix:
         gcc: [12, 13, 14]
         build_type: [Debug]
-        std: [23]
+        std: [20]
 
     env:
       CC: gcc-${{matrix.gcc}}

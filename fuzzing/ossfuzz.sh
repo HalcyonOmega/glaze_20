@@ -10,7 +10,7 @@ $CXX --version
 
 for SRCFILE in $(ls fuzzing/*.cpp |grep -v -E '(exhaustive|main\.cpp)'); do
     NAME=$(basename $SRCFILE .cpp)
-    $CXX $CXXFLAGS -std=c++23 -g -Iinclude \
+    $CXX $CXXFLAGS -std=c++20 -g -Iinclude \
          $SRCFILE -o $OUT/$NAME \
          $LIB_FUZZING_ENGINE
 done

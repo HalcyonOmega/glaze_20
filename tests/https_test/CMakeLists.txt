@@ -1,5 +1,5 @@
 # HTTPS Test CMakeLists.txt
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.20)
 project(https_test)
 
 # Only build if OpenSSL is available
@@ -38,7 +38,7 @@ if(OPENSSL_HEADERS_AVAILABLE)
     target_compile_definitions(${PROJECT_NAME} PRIVATE SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
     # Set C++ standard
-    target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)
+    target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
     
     message(STATUS "Self-contained HTTPS test will be built with OpenSSL support")
     message(STATUS " Certificates will be generated automatically at runtime")

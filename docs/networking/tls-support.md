@@ -14,8 +14,8 @@ The `http_server` has been enhanced with a template parameter `<bool EnableTLS>`
 ### Prerequisites
 
 - OpenSSL development libraries
-- CMake 3.21 or later
-- C++23 compatible compiler
+- CMake 3.20 or later
+- C++20 compatible compiler
 
 ### CMake Configuration
 
@@ -196,4 +196,4 @@ vcpkg install openssl
 ### Compilation Errors
 - Ensure `GLZ_ENABLE_SSL` is defined when using TLS features
 - Verify OpenSSL libraries are properly linked
-- Check that C++23 standard is enabled
+- Check that C++20 standard is enabled

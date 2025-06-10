@@ -5,12 +5,25 @@
 
 #include <tuple>
 #include <utility>
+#include <version> // For __cpp_lib_unreachable
 
 #include "glaze/util/inline.hpp"
 #include "glaze/util/utility.hpp"
 
 // We do not mark these functions noexcept so that it can be used in exception contexts
 // Furthermore, adding noexcept can increase assembly size because exceptions need to cause termination
+
+// C++23 std::unreachable
+#if defined(__cpp_lib_unreachable) && __cpp_lib_unreachable >= 202202L
+#include <utility> // For std::unreachable
+#define GLZ_UNREACHABLE() std::unreachable()
+#elif defined(__GNUC__) || defined(__clang__)
+#define GLZ_UNREACHABLE() __builtin_unreachable()
+#elif defined(_MSC_VER)
+#define GLZ_UNREACHABLE() __assume(0)
+#else
+#define GLZ_UNREACHABLE() do {} while (0) // Fallback, might produce warnings
+#endif
 
 namespace glz
 {
@@ -95,7 +108,7 @@ namespace glz
                lambda.template operator()<1>();
                break;
             default:
-               std::unreachable();
+               GLZ_UNREACHABLE();
             }
          }
          else if constexpr (N == 3) {
@@ -110,7 +123,7 @@ namespace glz
                lambda.template operator()<2>();
                break;
             default:
-               std::unreachable();
+               GLZ_UNREACHABLE();
             }
          }
          else if constexpr (N == 4) {
@@ -128,7 +141,7 @@ namespace glz
                lambda.template operator()<3>();
                break;
             default:
-               std::unreachable();
+               GLZ_UNREACHABLE();
             }
          }
          else if constexpr (N == 5) {
@@ -149,7 +162,7 @@ namespace glz
                lambda.template operator()<4>();
                break;
             default:
-               std::unreachable();
+               GLZ_UNREACHABLE();
             }
          }
          else if constexpr (N == 6) {
@@ -173,7 +186,7 @@ namespace glz
                lambda.template operator()<5>();
                break;
             default:
-               std::unreachable();
+               GLZ_UNREACHABLE();
             }
          }
          else if constexpr (N == 7) {
@@ -200,7 +213,7 @@ namespace glz
                lambda.template operator()<6>();
                break;
             default:
-               std::unreachable();
+               GLZ_UNREACHABLE();
             }
          }
          else if constexpr (N == 8) {
@@ -230,7 +243,7 @@ namespace glz
                lambda.template operator()<7>();
                break;
             default:
-               std::unreachable();
+               GLZ_UNREACHABLE();
             }
          }
          else if constexpr (N == 9) {
@@ -263,7 +276,7 @@ namespace glz
                lambda.template operator()<8>();
                break;
             default:
-               std::unreachable();
+               GLZ_UNREACHABLE();
             }
          }
          else if constexpr (N == 10) {
@@ -299,20 +312,44 @@ namespace glz
                lambda.template operator()<9>();
                break;
             default:
-               std::unreachable();
+               GLZ_UNREACHABLE();
+            }
+         }
+         else if constexpr (N >= 9 && N <= 16) {
+            static_assert(N > 0);
+            using JUMP_FUNCTION = void (*)(Lambda&);
+            GLZ_CONSTEXPR_ARRAY_FUNCTION JUMP_FUNCTION jump_table[] = {
+               make_jump_function<0, Lambda>(),
+               make_jump_function<1, Lambda>(),
+               make_jump_function<2, Lambda>(),
+               make_jump_function<3, Lambda>(),
+               make_jump_function<4, Lambda>(),
+               make_jump_function<5, Lambda>(),
+               make_jump_function<6, Lambda>(),
+               make_jump_function<7, Lambda>(),
+               make_jump_function<8, Lambda>(),
+               make_jump_function<9, Lambda>(),
+               make_jump_function<10, Lambda>(),
+               make_jump_function<11, Lambda>(),
+               make_jump_function<12, Lambda>(),
+               make_jump_function<13, Lambda>(),
+               make_jump_function<14, Lambda>(),
+               make_jump_function<15, Lambda>()
+            };
+
+            if constexpr (index < N) {
+               jump_table[index](lambda);
+            } else {
+               GLZ_UNREACHABLE();
             }
          }
          else {
-#ifdef _MSC_VER
-            using Lambda = std::decay_t<decltype(lambda)>;
-            static const auto jump_table = []<size_t... I>(std::index_sequence<I...>) {
-               return std::array{make_jump_function<I, Lambda>()...};
-            }(std::make_index_sequence<N>{});
-#else
-            static constexpr auto jump_table = []<size_t... I>(std::index_sequence<I...>) {
+            static_assert(N > 0);
+            GLZ_IF_CONSTEXPR(index >= N) { GLZ_UNREACHABLE(); }
+            using JUMP_FUNCTION = void (*)(Lambda&);
+            constexpr auto jump_table = []<size_t... I>(std::index_sequence<I...>) {
                return std::array{+[](std::decay_t<decltype(lambda)>& l) { l.template operator()<I>(); }...};
             }(std::make_index_sequence<N>{});
-#endif
 
 #if defined(__clang_major__) && (__clang_major__ >= 19)
             [[assume(index < N)]];

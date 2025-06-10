@@ -7,6 +7,8 @@
 // #include <source_location>
 #include <array>
 #include <string_view>
+#include <type_traits> // Added for is_enum_v, underlying_type_t, is_convertible_v
+#include <version>     // Added for __cpp_lib_is_scoped_enum
 
 #include "glaze/reflection/to_tuple.hpp"
 #include "glaze/util/string_literal.hpp"
@@ -16,6 +18,26 @@
 #elif defined(_MSC_VER)
 #define GLZ_PRETTY_FUNCTION __FUNCSIG__
 #endif
+
+namespace glz { // Placed the helper in glz namespace
+
+#if defined(__cpp_lib_is_scoped_enum) && __cpp_lib_is_scoped_enum >= 202011L
+    template <class T>
+    inline constexpr bool is_scoped_enum_v = std::is_scoped_enum_v<T>;
+#else
+    namespace detail {
+        template <class T, class = void>
+        struct is_scoped_enum_helper : std::false_type {};
+
+        template <class T>
+        struct is_scoped_enum_helper<T, std::enable_if_t<std::is_enum_v<T>>>
+            : std::bool_constant<!std::is_convertible_v<T, std::underlying_type_t<T>>> {};
+    }
+    template <class T>
+    inline constexpr bool is_scoped_enum_v = detail::is_scoped_enum_helper<T>::value;
+#endif
+
+} // namespace glz
 
 // For struct fields
 namespace glz::detail
@@ -269,7 +291,7 @@ namespace glz
    }
 
    template <auto E>
-      requires(std::is_enum_v<decltype(E)> && std::is_scoped_enum_v<decltype(E)>)
+      requires(std::is_enum_v<decltype(E)> && glz::is_scoped_enum_v<decltype(E)>)
    consteval auto get_name()
    {
 #if defined(_MSC_VER) && !defined(__clang__)
@@ -284,7 +306,7 @@ namespace glz
    }
 
    template <auto E>
-      requires(std::is_enum_v<decltype(E)> && not std::is_scoped_enum_v<decltype(E)>)
+      requires(std::is_enum_v<decltype(E)> && not glz::is_scoped_enum_v<decltype(E)>)
    consteval auto get_name()
    {
 #if defined(_MSC_VER) && !defined(__clang__)

@@ -4,7 +4,7 @@
 # also, the library provides a way to invoke the fuzzer on external data which is
 # useful to run the fuzz corpus through code also when not using clang.
 add_library(main STATIC main.cpp)
-target_compile_features(main PRIVATE cxx_std_23)
+target_compile_features(main PRIVATE cxx_std_20)
 
 # see if libfuzzer is supported - this gets more complicated than just checking
 # for clang, because apple clang does not seem to support it and windows also

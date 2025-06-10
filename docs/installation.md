@@ -5,7 +5,7 @@ This guide covers some of the ways to install and integrate the Glaze JSON libra
 ## System Requirements
 
 ### Compiler Support
-- **C++23** standard required
+- **C++20** standard required
 - **Clang 17+**
 - **GCC 12+** 
 - **MSVC 2022+**
@@ -172,7 +172,7 @@ set(glaze_ENABLE_AVX2 OFF)
 cmake_minimum_required(VERSION 3.20)
 project(MyGlazeProject LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Enable AVX2 if building for x86_64
